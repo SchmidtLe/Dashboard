@@ -1,38 +1,53 @@
-name: Build Vite Project 
+name: Build & Deploy Vite Project
 
-"on":
+on:
   push:
-    branches: 
-      - main
-  pull_request: {} 
-      
-jobs: 
-  build: 
-    runs-on: ubuntu_latest
-    
-    steps: 
-      - name: Checkout code 
-        uses: actions/checkout@v3
+    branches: [main]
+  pull_request:
 
-      - name: Setup Node
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with: 
-          node-version: '20'
 
-      - name: Install dependencies 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
         run: |
-          if [-f package-lock.json]; then
-            npm ic
-          else 
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
             npm install
           fi
 
-      - name: Build project 
-        run: npm run build 
+      - name: Build Vite project
+        run: npm run build
 
-      - name: upload dist folder 
-        uses: actions/uploud-artifact@v3
-        with: 
-              name: dist 
-              path: dist
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
