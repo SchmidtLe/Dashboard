@@ -1,3 +1,4 @@
+npm install
 {
   "name": "@figma/my-make-file",
   "private": true,
