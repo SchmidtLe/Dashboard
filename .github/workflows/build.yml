@@ -9,7 +9,7 @@ name: Build Vite Project
 jobs: 
   build: 
     runs-on: ubuntu_latest
-
+    
     steps: 
       - name: Checkout code 
         uses: actions/checkout@v3
